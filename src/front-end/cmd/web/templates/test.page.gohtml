@@ -1,0 +1,157 @@
+{{template "base" .}}
+
+{{define "content" }}
+<div class="container">
+  <div class="row">
+    <div class="col">
+      <h1 class="mt-5">Test microservices</h1>
+      <hr />
+
+      <a
+        href="javascript:void(0)"
+        id="brokerBtn"
+        class="btn btn-outline-secondary"
+        >Test Broker</a
+      >
+      <a
+        href="javascript:void(0)"
+        id="authBrokerBtn"
+        class="btn btn-outline-secondary"
+        >Test Auth</a
+      >
+      <a href="javascript:void(0)" id="logBtn" class="btn btn-outline-secondary"
+        >Test Log</a
+      >
+
+      <div
+        id="output"
+        class="mt-5"
+        style="outline: 1px solid silver; padding: 2em"
+      >
+        <span class="text-muted">Output shows here...</span>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+      <h4 class="mt-5">Sent</h4>
+      <div class="mt-1" style="outline: 1px solid silver; padding: 2em">
+        <pre
+          id="payload"
+        ><span class="text-muted">Nothing sent yet...</span></pre>
+      </div>
+    </div>
+    <div class="col">
+      <h4 class="mt-5">Received</h4>
+      <div class="mt-1" style="outline: 1px solid silver; padding: 2em">
+        <pre
+          id="received"
+        ><span class="text-muted">Nothing received yet...</span></pre>
+      </div>
+    </div>
+  </div>
+</div>
+{{ end }}
+
+{{define "js"}}
+<script>
+  const brokerBtn = document.getElementById("brokerBtn");
+  const authBrokerBtn = document.getElementById("authBrokerBtn");
+  const logBtn = document.getElementById("logBtn");
+  const output = document.getElementById("output");
+  const sent = document.getElementById("payload");
+  const received = document.getElementById("received");
+
+  logBtn.addEventListener("click", () => {
+    const payload = {
+      action: "log",
+      log: {
+        name: "event",
+        data: "Some kind of data",
+      },
+    };
+
+    const headers = new Headers();
+    headers.append("Content-Type", "application/json");
+
+    const body = {
+      method: "POST",
+      body: JSON.stringify(payload),
+      headers: headers,
+    };
+
+    fetch("http:\/\/localhost:8080/handle", body)
+      .then((res) => res.json())
+      .then((data) => {
+        sent.innerHTML = JSON.stringify(payload, undefined, 2);
+        received.innerHTML = JSON.stringify(data, undefined, 2);
+
+        if (data.error) {
+          output.innerHTML += `<br><strong>Error:</strong> ${data.message}`;
+        } else {
+          output.innerHTML += `<br><strong>Response from broker service</strong>: ${data.message}`;
+        }
+      })
+      .catch((err) => {
+        output.innerHTML += "<br><br>Error: " + err;
+      });
+  });
+
+  brokerBtn.addEventListener("click", () => {
+    const body = {
+      method: "POST",
+    };
+
+    fetch("http:\/\/localhost:8080", body)
+      .then((res) => res.json())
+      .then((data) => {
+        sent.innerHTML = "empty post request";
+        received.innerHTML = JSON.stringify(data, undefined, 2);
+
+        if (data.error) {
+          console.log(data.message);
+        } else {
+          output.innerHTML += `<br><strong>Response from broker service</strong>: ${data.message}`;
+        }
+      })
+      .catch((err) => {
+        output.innerHTML += "<br><br>Error: " + err;
+      });
+  });
+
+  authBrokerBtn.addEventListener("click", () => {
+    const payload = {
+      action: "auth",
+      auth: {
+        email: "admin@example.com",
+        password: "verysecret",
+      },
+    };
+
+    const headers = new Headers();
+    headers.append("Content-Type", "application/json");
+
+    const body = {
+      method: "POST",
+      body: JSON.stringify(payload),
+      headers: headers,
+    };
+
+    fetch("http:\/\/localhost:8080/handle", body)
+      .then((res) => res.json())
+      .then((data) => {
+        sent.innerHTML = JSON.stringify(payload, undefined, 2);
+        received.innerHTML = JSON.stringify(data, undefined, 2);
+
+        if (data.error) {
+          output.innerHTML += `<br><strong>Error:</strong> ${data.message}`;
+        } else {
+          output.innerHTML += `<br><strong>Response from broker service</strong>: ${data.message}`;
+        }
+      })
+      .catch((err) => {
+        output.innerHTML += "<br><br>Error: " + err;
+      });
+  });
+</script>
+{{ end }}

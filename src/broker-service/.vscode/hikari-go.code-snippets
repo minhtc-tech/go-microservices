@@ -1,0 +1,41 @@
+{
+  "JSON Parse struct": {
+    "prefix": "jsp",
+    "body": [
+      "${3:output} ${2:type} `json:\"${1:input}\"`"
+    ],
+    "scope": "go",
+  },
+  "JSON Parse struct with same out and input": {
+    "prefix": "jsps",
+    "body": [
+      "${1/(.*)/${1:/capitalize}/} ${2:type} `json:\"${1:input}\"`"
+    ],
+    "scope": "go",
+  },
+  "If have error": {
+    "prefix": "ie",
+    "body": [
+      "if err != nil {",
+      "\t${1}",
+      "}"
+    ],
+    "scope": "go",
+  },
+  "If have error and return something": {
+    "prefix": "ier",
+    "body": [
+      "if err != nil {",
+      "\treturn ${1}",
+      "}"
+    ],
+    "scope": "go",
+  },
+  "Return": {
+    "prefix": "r",
+    "body": [
+      "return ${1}"
+    ],
+    "scope": "go"
+  }
+}
