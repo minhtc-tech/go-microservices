@@ -75,6 +75,7 @@
   const output = document.getElementById("output");
   const sent = document.getElementById("payload");
   const received = document.getElementById("received");
+  const brokerURL = {{.BrokerURL}};
 
   logBtn.addEventListener("click", () => {
     const payload = {
@@ -94,7 +95,7 @@
       headers: headers,
     };
 
-    fetch("http:\/\/localhost:8080/handle", body)
+    fetch(`${brokerURL}/handle`, body)
       .then((res) => res.json())
       .then((data) => {
         sent.innerHTML = JSON.stringify(payload, undefined, 2);
@@ -129,7 +130,7 @@
       headers: headers,
     };
 
-    fetch("http:\/\/localhost:8080/log-grpc", body)
+    fetch(`${brokerURL}/log-grpc`, body)
       .then((res) => res.json())
       .then((data) => {
         sent.innerHTML = JSON.stringify(payload, undefined, 2);
@@ -151,7 +152,7 @@
       method: "POST",
     };
 
-    fetch("http:\/\/localhost:8080", body)
+    fetch(`${brokerURL}`, body)
       .then((res) => res.json())
       .then((data) => {
         sent.innerHTML = "empty post request";
@@ -186,7 +187,7 @@
       headers: headers,
     };
 
-    fetch("http:\/\/localhost:8080/handle", body)
+    fetch(`${brokerURL}/handle`, body)
       .then((res) => res.json())
       .then((data) => {
         sent.innerHTML = JSON.stringify(payload, undefined, 2);
@@ -223,7 +224,7 @@
       headers: headers,
     };
 
-    fetch("http:\/\/localhost:8080/handle", body)
+    fetch(`${brokerURL}/handle`, body)
       .then((res) => res.json())
       .then((data) => {
         sent.innerHTML = JSON.stringify(payload, undefined, 2);
