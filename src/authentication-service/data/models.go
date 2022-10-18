@@ -12,17 +12,28 @@ import (
 
 var db *sql.DB
 
-func New(dbPool *sql.DB) Models {
-	db = dbPool
+type PostgresRepository struct {
+	Conn *sql.DB
+}
 
-	return Models{
-		User: User{},
+func NewPostgresRepository(pool *sql.DB) *PostgresRepository {
+	db = pool
+	return &PostgresRepository{
+		Conn: pool,
 	}
 }
 
-type Models struct {
-	User User
-}
+// func New(dbPool *sql.DB) Models {
+// 	db = dbPool
+
+// 	return Models{
+// 		User: User{},
+// 	}
+// }
+
+// type Models struct {
+// 	User User
+// }
 
 type User struct {
 	ID        int       `json:"id"`
@@ -37,7 +48,7 @@ type User struct {
 
 const dbTimeout = time.Second * 3
 
-func (u *User) GetAll() ([]*User, error) {
+func (u *PostgresRepository) GetAll() ([]*User, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
 
@@ -86,7 +97,7 @@ func (u *User) GetAll() ([]*User, error) {
 	return users, nil
 }
 
-func (u *User) GetByEmail(email string) (*User, error) {
+func (u *PostgresRepository) GetByEmail(email string) (*User, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
 
@@ -125,7 +136,7 @@ func (u *User) GetByEmail(email string) (*User, error) {
 	return &user, nil
 }
 
-func (u *User) GetOne(id int) (*User, error) {
+func (u *PostgresRepository) GetOne(id int) (*User, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
 
@@ -164,7 +175,7 @@ func (u *User) GetOne(id int) (*User, error) {
 	return &user, nil
 }
 
-func (u *User) Update() error {
+func (u *PostgresRepository) Update(user User) error {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
 
@@ -180,12 +191,12 @@ func (u *User) Update() error {
 	`
 
 	_, err := db.ExecContext(ctx, stmt,
-		u.Email,
-		u.FirstName,
-		u.LastName,
-		u.Active,
+		user.Email,
+		user.FirstName,
+		user.LastName,
+		user.Active,
 		time.Now(),
-		u.ID,
+		user.ID,
 	)
 
 	if err != nil {
@@ -195,24 +206,7 @@ func (u *User) Update() error {
 	return nil
 }
 
-func (u *User) Delete() error {
-	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
-	defer cancel()
-
-	stmt := `
-		DELETE FROM users
-		WHERE id = $1
-	`
-
-	_, err := db.ExecContext(ctx, stmt, u.ID)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (u *User) DeleteByID(id int) error {
+func (u *PostgresRepository) DeleteByID(id int) error {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
 
@@ -229,7 +223,7 @@ func (u *User) DeleteByID(id int) error {
 	return nil
 }
 
-func (u *User) Insert(user User) (int, error) {
+func (u *PostgresRepository) Insert(user User) (int, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
 
@@ -269,7 +263,7 @@ func (u *User) Insert(user User) (int, error) {
 	return newID, nil
 }
 
-func (u *User) ResetPassword(password string) error {
+func (u *PostgresRepository) ResetPassword(password string, user User) error {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
 
@@ -283,7 +277,7 @@ func (u *User) ResetPassword(password string) error {
 		SET password = $1
 		WHERE id = $2
 	`
-	_, err = db.ExecContext(ctx, stmt, hashedPassword, u.ID)
+	_, err = db.ExecContext(ctx, stmt, hashedPassword, user.ID)
 	if err != nil {
 		return err
 	}
@@ -291,8 +285,8 @@ func (u *User) ResetPassword(password string) error {
 	return nil
 }
 
-func (u *User) PasswordMatches(plainText string) (bool, error) {
-	err := bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(plainText))
+func (u *PostgresRepository) PasswordMatches(plainText string, user User) (bool, error) {
+	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(plainText))
 	if err != nil {
 		switch {
 		case errors.Is(err, bcrypt.ErrMismatchedHashAndPassword):
