@@ -9,8 +9,8 @@ type PostgresTestRepository struct {
 	Conn *sql.DB
 }
 
-func NewPostgresTestRepository(db *sql.DB) *PostgresRepository {
-	return &PostgresRepository{
+func NewPostgresTestRepository(db *sql.DB) *PostgresTestRepository {
+	return &PostgresTestRepository{
 		Conn: db,
 	}
 }

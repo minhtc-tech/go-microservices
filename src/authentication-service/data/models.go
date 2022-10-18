@@ -43,7 +43,7 @@ type User struct {
 	Password  string    `json:"-"`
 	Active    int       `json:"active"`
 	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"json:updated_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 const dbTimeout = time.Second * 3

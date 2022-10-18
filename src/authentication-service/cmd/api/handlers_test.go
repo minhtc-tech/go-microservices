@@ -23,11 +23,11 @@ func NewTestClient(fn RoundTripFunc) *http.Client {
 
 func Test_Authenticate(t *testing.T) {
 	jsonToReturn := `
-	{
-		"error": false,
-		"message": "Some message"
-	}
-	`
+{
+	"error": false,
+	"message": "Some message"
+}
+`
 
 	client := NewTestClient(func(req *http.Request) *http.Response {
 		return &http.Response{
