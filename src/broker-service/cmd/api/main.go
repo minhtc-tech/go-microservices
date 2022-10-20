@@ -11,14 +11,14 @@ import (
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
-const webPort = "8080"
+// const webPort = "8080" // * deploy docker swarm - with caddy
+const webPort = "80" // * run locally
 
 type Config struct {
 	Rabbit *amqp.Connection
 }
 
 func main() {
-	// try to connect to rabbitmq
 	rabbitConn, err := connect()
 	if err != nil {
 		log.Println(err)
@@ -32,13 +32,11 @@ func main() {
 
 	log.Printf("Starting broker service on port %s\n", webPort)
 
-	// define http server
 	srv := &http.Server{
 		Addr:    fmt.Sprintf(":%s", webPort),
 		Handler: app.routes(),
 	}
 
-	// start the server
 	err = srv.ListenAndServe()
 	if err != nil {
 		log.Panic(err)
@@ -50,7 +48,6 @@ func connect() (*amqp.Connection, error) {
 	var backOff = 1 * time.Second
 	var connection *amqp.Connection
 
-	// don't continue until rabbit is ready
 	for {
 		c, err := amqp.Dial("amqp://guest:guest@rabbitmq")
 		if err != nil {
